@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(Remove-Item -Path \"C:\\\\Users\\\\24000609\\\\Documents\\\\codings\\\\zoo-website\\\\client\\\\src\\\\*.css\" -Recurse -Force)",
+      "Bash(Remove-Item -Path \"C:\\\\Users\\\\24000609\\\\Documents\\\\codings\\\\zoo-website\\\\client\\\\src\\\\**\\\\*.css\" -Recurse -Force)",
+      "Bash(Write-Host \"Deleted all CSS files\")",
+      "Bash(find:*)"
+    ]
+  }
+}
