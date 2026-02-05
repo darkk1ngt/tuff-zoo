@@ -1,6 +1,6 @@
 import type { ApiError } from '../types';
 
-export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001/api';
+export const API_BASE = import.meta.env.PUBLIC_API_BASE || '/api';
 
 export class ApiClientError extends Error {
   status: number;

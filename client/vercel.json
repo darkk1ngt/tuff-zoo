@@ -2,7 +2,7 @@
 	"rewrites": [
 		{
 			"source": "/api/:path*",
-			"destination": "tuff-zoo-production.up.railway.app/api/:path*"
+			"destination": "https://tuff-zoo-production.up.railway.app/api/:path*"
 		},
 		{ "source": "/:path*", "destination": "/index.html" }
 	]
