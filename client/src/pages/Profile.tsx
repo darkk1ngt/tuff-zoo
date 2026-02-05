@@ -65,7 +65,7 @@ function ProfileContent() {
           </div>
         </aside>
 
-        <main class="main">
+        <main class="profileMain">
           <section class="section">
             <h2 class="sectionTitle">My Bookings</h2>
 

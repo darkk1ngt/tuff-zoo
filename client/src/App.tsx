@@ -2,6 +2,7 @@ import { Route, Router } from "@solidjs/router";
 import { lazy } from "solid-js";
 import { Layout } from "./components/common/Layout";
 import { AuthProvider } from "./contexts/AuthContext";
+import { CartProvider } from "./contexts/CartContext";
 import { FlashProvider } from "./contexts/FlashContext";
 import "./styles.css";
 
@@ -10,6 +11,7 @@ const Home = lazy(() => import("./pages/Home"));
 const About = lazy(() => import("./pages/About"));
 const EduVisit = lazy(() => import("./pages/EduVisit"));
 const Book = lazy(() => import("./pages/Book"));
+const Cart = lazy(() => import("./pages/Cart"));
 const Hotels = lazy(() => import("./pages/Hotels"));
 const HotelDetail = lazy(() => import("./pages/HotelDetail"));
 const Gallery = lazy(() => import("./pages/Gallery"));
@@ -29,7 +31,9 @@ function App() {
       root={(props) => (
         <AuthProvider>
           <FlashProvider>
-            <Layout>{props.children}</Layout>
+            <CartProvider>
+              <Layout>{props.children}</Layout>
+            </CartProvider>
           </FlashProvider>
         </AuthProvider>
       )}
@@ -38,6 +42,7 @@ function App() {
       <Route path="/about" component={About} />
       <Route path="/edu-visit" component={EduVisit} />
       <Route path="/book" component={Book} />
+      <Route path="/cart" component={Cart} />
       <Route path="/hotels" component={Hotels} />
       <Route path="/hotels/:id" component={HotelDetail} />
       <Route path="/gallery" component={Gallery} />

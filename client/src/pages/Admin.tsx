@@ -115,7 +115,7 @@ function AdminContent() {
   };
 
   return (
-    <div class="layout">
+    <div class="adminLayout">
       <aside class="sidebar">
         <h2 class="sidebarTitle">Admin Panel</h2>
         <nav class="navLinks">
@@ -192,7 +192,7 @@ function AdminContent() {
         </nav>
       </aside>
 
-      <main class="main">
+      <main class="adminMain">
         <Show when={activeTab() === "overview"}>
           <div class="header">
             <h1 class="title">Dashboard Overview</h1>

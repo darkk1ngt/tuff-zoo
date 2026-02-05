@@ -17,30 +17,37 @@ export interface CreateHotelBooking {
 
 export type CreateBookingData = CreateTicketBooking | CreateHotelBooking;
 
-export function createBooking(data: CreateBookingData): Promise<Booking> {
-  return post<Booking>('/bookings', data);
+export async function createBooking(data: CreateBookingData): Promise<Booking> {
+  const response = await post<{ booking: Booking }>('/bookings', data);
+  return response.booking;
 }
 
-export function getUserBookings(): Promise<Booking[]> {
-  return get<Booking[]>('/bookings');
+export async function getUserBookings(): Promise<Booking[]> {
+  const response = await get<{ bookings: Booking[] }>('/bookings');
+  return response.bookings;
 }
 
-export function getBooking(id: number): Promise<Booking> {
-  return get<Booking>(`/bookings/${id}`);
+export async function getBooking(id: number): Promise<Booking> {
+  const response = await get<{ booking: Booking }>(`/bookings/${id}`);
+  return response.booking;
 }
 
-export function cancelBooking(id: number): Promise<Booking> {
-  return put<Booking>(`/bookings/${id}/cancel`);
+export async function cancelBooking(id: number): Promise<Booking> {
+  const response = await put<{ booking: Booking }>(`/bookings/${id}/cancel`);
+  return response.booking;
 }
 
 // Admin endpoints
-export function getAllBookings(): Promise<Booking[]> {
-  return get<Booking[]>('/admin/bookings');
+export async function getAllBookings(): Promise<Booking[]> {
+  const response = await get<{ bookings: Booking[] }>('/admin/bookings');
+  return response.bookings;
 }
 
 export function updateBookingStatus(
   id: number,
   status: Booking['status'],
 ): Promise<Booking> {
-  return put<Booking>(`/admin/bookings/${id}`, { status });
+  return put<{ booking: Booking }>(`/admin/bookings/${id}`, { status }).then(
+    (response) => response.booking,
+  );
 }

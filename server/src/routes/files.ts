@@ -48,7 +48,14 @@ const upload = multer({
 router.get('/gallery', async (_req: Request, res: Response) => {
   try {
     const images = await GalleryImageModel.getAll();
-    res.json({ images });
+    res.json({
+      images: images.map((image) => ({
+        id: image.id,
+        url: `/uploads/${image.filename}`,
+        alt: image.filename.replace(/\.[^/.]+$/, ''),
+        category: undefined
+      }))
+    });
   } catch (error) {
     console.error('Get gallery error:', error);
     res.status(500).json({ error: 'Failed to get gallery images' });
@@ -69,7 +76,8 @@ router.post('/admin/gallery', requireAdmin, upload.single('image'), async (req: 
       image: {
         id: imageId,
         filename: req.file.filename,
-        url: `/uploads/${req.file.filename}`
+        url: `/uploads/${req.file.filename}`,
+        alt: req.body.alt || req.file.originalname.replace(/\.[^/.]+$/, '')
       }
     });
   } catch (error) {

@@ -48,7 +48,7 @@ export function FlashProvider(props: { children: JSX.Element }) {
   return (
     <FlashContext.Provider value={value}>
       {props.children}
-      <div class="container">
+      <div class="flashStack">
         <For each={messages()}>
           {(flash) => (
             <div class={`flash ${flash.type}`}>

@@ -29,17 +29,18 @@ export function logout(): Promise<{ message: string }> {
   return post<{ message: string }>('/auth/logout');
 }
 
-export function getCurrentUser(): Promise<User> {
-  return get<User>('/auth/me');
+export async function getCurrentUser(): Promise<User> {
+  const response = await get<{ user: User }>('/auth/me');
+  return response.user;
 }
 
 export function forgotPassword(email: string): Promise<{ message: string }> {
-  return post<{ message: string }>('/auth/forgot-password', { email });
+  return post<{ message: string }>('/password/reset', { email });
 }
 
 export function resetPassword(
   token: string,
   password: string,
 ): Promise<{ message: string }> {
-  return post<{ message: string }>('/auth/reset-password', { token, password });
+  return post<{ message: string }>(`/password/reset/${token}`, { password });
 }

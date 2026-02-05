@@ -168,4 +168,52 @@ router.put('/tickets/:id', async (req: Request, res: Response) => {
   }
 });
 
+router.post('/tickets', async (req: Request, res: Response) => {
+  try {
+    const { type, price, description } = req.body;
+
+    if (!type || price === undefined) {
+      res.status(400).json({ error: 'Ticket type and price are required' });
+      return;
+    }
+
+    const ticketId = await TicketModel.create({
+      type,
+      price: parseFloat(price),
+      description: description || null
+    });
+
+    const ticket = await TicketModel.getById(ticketId);
+    res.status(201).json({
+      message: 'Ticket created successfully',
+      ticket
+    });
+  } catch (error) {
+    console.error('Create ticket error:', error);
+    res.status(500).json({ error: 'Failed to create ticket' });
+  }
+});
+
+router.delete('/tickets/:id', async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'Invalid ticket ID' });
+      return;
+    }
+
+    const ticket = await TicketModel.getById(id);
+    if (!ticket) {
+      res.status(404).json({ error: 'Ticket not found' });
+      return;
+    }
+
+    await TicketModel.delete(id);
+    res.json({ message: 'Ticket deleted successfully' });
+  } catch (error) {
+    console.error('Delete ticket error:', error);
+    res.status(500).json({ error: 'Failed to delete ticket' });
+  }
+});
+
 export default router;

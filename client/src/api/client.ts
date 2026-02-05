@@ -1,6 +1,6 @@
 import type { ApiError } from '../types';
 
-const API_BASE = 'http://localhost:3001/api';
+export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001/api';
 
 export class ApiClientError extends Error {
   status: number;
@@ -31,7 +31,7 @@ export async function apiRequest<T>(
     let message = response.statusText;
     try {
       const errorData = (await response.json()) as ApiError;
-      message = errorData.message || message;
+      message = errorData.message || errorData.error || message;
     } catch {
       // Use default message
     }

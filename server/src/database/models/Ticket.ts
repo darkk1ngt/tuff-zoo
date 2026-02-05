@@ -44,5 +44,17 @@ export const TicketModel = {
       `UPDATE tickets SET ${fields.join(', ')} WHERE id = ?`,
       values
     );
+  },
+
+  async create(data: Pick<Ticket, 'type' | 'price' | 'description'>): Promise<number> {
+    const result = await query<{ insertId: number }>(
+      'INSERT INTO tickets (type, price, description) VALUES (?, ?, ?)',
+      [data.type, data.price, data.description || null]
+    );
+    return (result as unknown as { insertId: number }).insertId;
+  },
+
+  async delete(id: number): Promise<void> {
+    await query('DELETE FROM tickets WHERE id = ?', [id]);
   }
 };

@@ -1,12 +1,14 @@
 import { A, useLocation } from "@solidjs/router";
 import { createSignal, Show } from "solid-js";
 import { useAuth } from "../../contexts/AuthContext";
+import { useCart } from "../../contexts/CartContext";
 import { Button } from "./Button";
 
 export function Nav() {
   const [menuOpen, setMenuOpen] = createSignal(false);
   const location = useLocation();
   const auth = useAuth();
+  const cart = useCart();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -33,6 +35,12 @@ export function Nav() {
             </A>
             <A href="/book" class={`link ${isActive("/book") ? "active" : ""}`}>
               Book
+            </A>
+            <A href="/cart" class={`link ${isActive("/cart") ? "active" : ""}`}>
+              Cart
+              <Show when={cart.itemCount() > 0}>
+                <span class="cartBadge">{cart.itemCount()}</span>
+              </Show>
             </A>
           </div>
 
@@ -95,6 +103,16 @@ export function Nav() {
             onClick={closeMenu}
           >
             Book
+          </A>
+          <A
+            href="/cart"
+            class={`mobileLink ${isActive("/cart") ? "active" : ""}`}
+            onClick={closeMenu}
+          >
+            Cart
+            <Show when={cart.itemCount() > 0}>
+              <span class="cartBadge">{cart.itemCount()}</span>
+            </Show>
           </A>
         </div>
 

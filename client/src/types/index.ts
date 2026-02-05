@@ -55,7 +55,15 @@ export interface Availability {
   available_rooms: number;
 }
 
+export interface AvailabilityCheck {
+  room_type: RoomType;
+  available_rooms: number;
+  check_in: string;
+  check_out: string;
+}
+
 export interface ApiError {
-  message: string;
-  status: number;
+  message?: string;
+  error?: string;
+  status?: number;
 }

@@ -1,19 +1,20 @@
 import type { GalleryImage } from '../types';
-import { del, get } from './client';
+import { API_BASE, del, get } from './client';
 
-export function getGalleryImages(): Promise<GalleryImage[]> {
-  return get<GalleryImage[]>('/gallery');
+export async function getGalleryImages(): Promise<GalleryImage[]> {
+  const response = await get<{ images: GalleryImage[] }>('/gallery');
+  return response.images;
 }
 
 export function uploadImage(formData: FormData): Promise<GalleryImage> {
   // Special case: don't set Content-Type header for FormData
-  return fetch('http://localhost:3001/api/admin/gallery', {
+  return fetch(`${API_BASE}/admin/gallery`, {
     method: 'POST',
     credentials: 'include',
     body: formData,
   }).then((res) => {
     if (!res.ok) throw new Error(res.statusText);
-    return res.json();
+    return res.json().then((data) => data.image as GalleryImage);
   });
 }
 

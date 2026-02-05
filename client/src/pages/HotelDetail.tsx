@@ -5,6 +5,7 @@ import { getHotel } from "../api/hotels";
 import { createCheckoutSession } from "../api/stripe";
 import { Button, Input } from "../components/common";
 import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 import { useFlash } from "../contexts/FlashContext";
 import type { RoomType } from "../types";
 import { calculateNights, formatPrice } from "../utils/formatters";
@@ -14,6 +15,7 @@ export default function HotelDetail() {
   const params = useParams();
   const navigate = useNavigate();
   const auth = useAuth();
+  const cart = useCart();
   const flash = useFlash();
 
   const [hotel] = createResource(() => getHotel(Number(params.id)));
@@ -82,6 +84,35 @@ export default function HotelDetail() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAddToCart = () => {
+    const room = selectedRoom();
+    if (!room) {
+      flash.showError("Please select a room");
+      return;
+    }
+
+    const dateValidation = validateDateRange(checkIn(), checkOut());
+    if (!dateValidation.valid) {
+      flash.showError(dateValidation.message!);
+      return;
+    }
+
+    const hotelData = hotel();
+    if (!hotelData) return;
+
+    cart.addHotel({
+      hotelId: hotelData.id,
+      hotelName: hotelData.name,
+      roomType: room,
+      checkIn: checkIn(),
+      checkOut: checkOut(),
+      quantity: 1,
+    });
+
+    flash.showSuccess("Added to cart");
+    navigate("/cart");
   };
 
   return (
@@ -261,6 +292,15 @@ export default function HotelDetail() {
               style={{ "margin-top": "var(--space-lg)" }}
             >
               Book Now
+            </Button>
+            <Button
+              variant="outline"
+              fullWidth
+              disabled={!canBook()}
+              onClick={handleAddToCart}
+              style={{ "margin-top": "var(--space-md)" }}
+            >
+              Add to Cart
             </Button>
           </aside>
         </div>

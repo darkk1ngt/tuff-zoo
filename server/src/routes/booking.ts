@@ -38,6 +38,22 @@ router.get('/hotels/:id', async (req: Request, res: Response) => {
   }
 });
 
+router.get('/hotels/:id/rooms', async (req: Request, res: Response) => {
+  try {
+    const hotelId = parseInt(req.params.id);
+    if (isNaN(hotelId)) {
+      res.status(400).json({ error: 'Invalid hotel ID' });
+      return;
+    }
+
+    const rooms = await RoomTypeModel.getByHotel(hotelId);
+    res.json({ room_types: rooms });
+  } catch (error) {
+    console.error('Get hotel rooms error:', error);
+    res.status(500).json({ error: 'Failed to get room types' });
+  }
+});
+
 router.get('/hotels/:id/rooms/:roomTypeId/availability', async (req: Request, res: Response) => {
   try {
     const hotelId = parseInt(req.params.id);
@@ -88,6 +104,14 @@ router.post('/bookings', requireAuth, async (req: Request, res: Response) => {
     }
 
     let total_price = 0;
+    const parsedQuantity = Number(quantity);
+    const requestedQuantity =
+      Number.isFinite(parsedQuantity) && parsedQuantity > 0 ? parsedQuantity : 1;
+
+    if (quantity !== undefined && (!Number.isFinite(parsedQuantity) || parsedQuantity < 1)) {
+      res.status(400).json({ error: 'Quantity must be at least 1' });
+      return;
+    }
 
     if (booking_type === 'ticket') {
       if (!ticket_id || !quantity) {
@@ -101,7 +125,7 @@ router.post('/bookings', requireAuth, async (req: Request, res: Response) => {
         return;
       }
 
-      total_price = ticket.price * quantity;
+      total_price = ticket.price * requestedQuantity;
     } else {
       if (!room_type_id || !check_in || !check_out) {
         res.status(400).json({ error: 'Room type ID, check-in, and check-out dates are required for hotel bookings' });
@@ -115,7 +139,7 @@ router.post('/bookings', requireAuth, async (req: Request, res: Response) => {
       }
 
       const availableRooms = await RoomTypeModel.checkAvailability(room_type_id, check_in, check_out);
-      if (availableRooms < 1) {
+      if (availableRooms < requestedQuantity) {
         res.status(400).json({ error: 'No rooms available for the selected dates' });
         return;
       }
@@ -129,7 +153,7 @@ router.post('/bookings', requireAuth, async (req: Request, res: Response) => {
         return;
       }
 
-      total_price = roomType.price_per_night * nights;
+      total_price = roomType.price_per_night * nights * requestedQuantity;
     }
 
     const bookingId = await BookingModel.create({
@@ -139,7 +163,7 @@ router.post('/bookings', requireAuth, async (req: Request, res: Response) => {
       check_out,
       room_type_id,
       ticket_id,
-      quantity: quantity || 1,
+      quantity: requestedQuantity,
       total_price
     });
 
@@ -188,6 +212,43 @@ router.get('/bookings/:id', requireAuth, async (req: Request, res: Response) => 
   } catch (error) {
     console.error('Get booking error:', error);
     res.status(500).json({ error: 'Failed to get booking' });
+  }
+});
+
+router.put('/bookings/:id/cancel', requireAuth, async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      res.status(400).json({ error: 'Invalid booking ID' });
+      return;
+    }
+
+    const booking = await BookingModel.getById(id);
+    if (!booking) {
+      res.status(404).json({ error: 'Booking not found' });
+      return;
+    }
+
+    if (booking.user_id !== req.user!.id && req.user!.role !== 'admin') {
+      res.status(403).json({ error: 'Access denied' });
+      return;
+    }
+
+    if (booking.status === 'cancelled') {
+      res.status(400).json({ error: 'Booking already cancelled' });
+      return;
+    }
+
+    await BookingModel.updateStatus(id, 'cancelled');
+    const updatedBooking = await BookingModel.getById(id);
+
+    res.json({
+      message: 'Booking cancelled successfully',
+      booking: updatedBooking
+    });
+  } catch (error) {
+    console.error('Cancel booking error:', error);
+    res.status(500).json({ error: 'Failed to cancel booking' });
   }
 });
 
